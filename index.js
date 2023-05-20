@@ -9,8 +9,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res)=>{
-    res.send('Toy Utopia Server is running')
+app.get('/', (req, res) => {
+  res.send('Toy Utopia Server is running')
 });
 
 
@@ -35,34 +35,48 @@ async function run() {
     const toysCollection = client.db('toyUtopia').collection('toyData');
     const checkToysCollection = client.db('toyUtopia').collection('check');
 
-    app.get('/allToys', async(req,res)=>{
-        const cursor = toysCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
+    app.get('/allToys', async (req, res) => {
+      const cursor = toysCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
     })
 
-    app.get('/allToys/:id', async(req,res)=>{
-        const id = req.params.id;
-        const query = {_id: new ObjectId(id)};
-        const result = await toysCollection.findOne(query);
-        res.send(result);
+    app.get('/allToys/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await toysCollection.findOne(query);
+      res.send(result);
     })
 
-    app.get('/indoorToys', async(req,res)=>{
-      const query = {subcategory: {$eq: "Indoor"}};
+    app.get('/indoorToys', async (req, res) => {
+      const query = { subcategory: { $eq: "Indoor" } };
 
       const cursor = toysCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
-  })
+    })
 
-  
+    app.get('/outdoorToys', async (req, res) => {
+      const query = { subcategory: { $eq: "Outdoor" } };
 
-     
-    app.get('/check', async(req,res)=>{
-        const cursor = checkToysCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
+      const cursor = toysCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    app.get('/waterToys', async (req, res) => {
+      const query = { subcategory: { $eq: "Water" } };
+
+      const cursor = toysCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+
+    app.get('/check', async (req, res) => {
+      const cursor = checkToysCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
     })
 
 
@@ -78,6 +92,6 @@ run().catch(console.dir);
 
 
 
-app.listen(port, ()=>{
-    console.log(`Toy Utopia server is running on port: ${port}`)
+app.listen(port, () => {
+  console.log(`Toy Utopia server is running on port: ${port}`)
 })
