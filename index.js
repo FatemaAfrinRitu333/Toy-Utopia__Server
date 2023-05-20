@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -12,6 +12,7 @@ app.use(express.json());
 app.get('/', (req, res)=>{
     res.send('Toy Utopia Server is running')
 });
+
 
 
 
@@ -29,12 +30,29 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const toysCollection = client.db('toyUtopia').collection('toyData');
+    const checkToysCollection = client.db('toyUtopia').collection('check');
 
     app.get('/allToys', async(req,res)=>{
         const cursor = toysCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+    app.get('/allToys/:id', async(req,res)=>{
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)};
+        const result = await toysCollection.findOne(query);
+        res.send(result);
+    })
+
+    
+
+     
+    app.get('/check', async(req,res)=>{
+        const cursor = checkToysCollection.find();
         const result = await cursor.toArray();
         res.send(result);
     })
