@@ -48,7 +48,15 @@ async function run() {
         res.send(result);
     })
 
-    
+    app.get('/indoorToys', async(req,res)=>{
+      const query = {subcategory: {$eq: "Indoor"}};
+
+      const cursor = toysCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+  })
+
+  
 
      
     app.get('/check', async(req,res)=>{
