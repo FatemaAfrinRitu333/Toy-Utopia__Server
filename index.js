@@ -54,8 +54,8 @@ async function run() {
     app.get('/allToys', async (req, res) => {
       // console.log(req.query.toyName)
       let query = {};
-      if(req.query.toyName){
-        query = {toyName: req.query.toyName}
+      if (req.query.toyName) {
+        query = { toyName: req.query.toyName }
       }
 
       const result = await addedToysCollection.find(query).limit(20).toArray();
@@ -63,7 +63,26 @@ async function run() {
       res.send(result);
     })
 
-    // GET
+    app.get('/allToys/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await addedToysCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.get('/myToys', async (req, res) => {
+      // console.log(req.query.toyName)
+      let query = {};
+      if(req.query.sellerEmail){
+        query = { sellerEmail: req.query.sellerEmail };
+      }
+
+      const result = await addedToysCollection.find(query).toArray();
+      // console.log(result)
+      res.send(result);
+    })
+
+    // category and individual routes
     app.get('/toyDetail/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -95,10 +114,19 @@ async function run() {
       res.send(result);
     })
 
-
     app.get('/check', async (req, res) => {
       const cursor = checkToysCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    
+
+    // DELETE
+    app.delete('/myToys/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await addedToysCollection.deleteOne(query);
       res.send(result);
     })
 
