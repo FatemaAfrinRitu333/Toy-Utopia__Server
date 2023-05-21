@@ -120,7 +120,22 @@ async function run() {
       res.send(result);
     })
 
-    
+    // PUT
+    app.put('/myToys/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const options = {upsert: true};
+      const updatedMyToy = req.body;
+      const myToy = {
+        $set: {
+          price: updatedMyToy.price,
+          quantity: updatedMyToy.quantity,
+          details: updatedMyToy.details,
+        }
+      }
+      const result = addedToysCollection.updateOne(filter, myToy, options);
+      res.send(result);
+    })
 
     // DELETE
     app.delete('/myToys/:id', async(req, res)=>{
