@@ -29,22 +29,32 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
 
     const toysCollection = client.db('toyUtopia').collection('toyData');
     const checkToysCollection = client.db('toyUtopia').collection('check');
-    const addedToysCollection = client.db('toyUtopia').collection('addedToys');
+    const addedToysCollection = client.db('toyUtopia').collection('sellerAddedToys');
 
 
-    // POST
-    app.post('/addedToys', async(req, res)=>{
+    // Seller Added Toy Route
+    app.post('/sellerAddedToys', async (req, res) => {
       const addedToys = req.body;
-      // console.log(addedToys);
+      console.log(addedToys);
+
       const result = await addedToysCollection.insertOne(addedToys);
-      res.send(result);
+      if (result?.insertedId) {
+        return res.status(200).send(result);
+      } else {
+        return res.status(404).send({
+          message: "can not insert try again leter",
+          status: false,
+        });
+      }
     })
 
+    app.get('/allToys', async (req, res) => {
+      const result = await addedToysCollection.find().toArray();
+      res.send(result);
+    })
 
     // GET
     app.get('/toyDetail/:id', async (req, res) => {
