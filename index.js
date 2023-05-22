@@ -6,7 +6,13 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+const corsConfig = {
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+}
+app.use(cors(corsConfig));
+app.options("", cors(corsConfig));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -24,11 +30,21 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  maxPoolSize: 10,
 });
 
 async function run() {
   try {
+
+    // client.connect((error)=>{
+    //   if(error){
+    //     console.log(error)
+    //     return;
+    //   }
+    // })
 
     const toysCollection = client.db('toyUtopia').collection('toyData');
     const checkToysCollection = client.db('toyUtopia').collection('check');
@@ -87,6 +103,13 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/myToys/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await addedToysCollection.findOne(query);
+      res.send(result);
+    })
+
     // category and individual routes
     app.get('/toyDetail/:id', async (req, res) => {
       const id = req.params.id;
@@ -130,7 +153,7 @@ async function run() {
       const id = req.params.id;
       const filter = {_id: new ObjectId(id)};
       const options = {upsert: true};
-      const updatedMyToy = req.body;
+      const updatedMyToy = req.body
       const myToy = {
         $set: {
           price: updatedMyToy.price,
@@ -138,7 +161,9 @@ async function run() {
           details: updatedMyToy.details,
         }
       }
+      console.log(myToy);
       const result = addedToysCollection.updateOne(filter, myToy, options);
+      console.log(result)
       res.send(result);
     })
 
