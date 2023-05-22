@@ -103,6 +103,20 @@ async function run() {
       res.send(result);
     })
 
+    // sorting
+
+    // descending
+    app.get('/myToys', async(req, res)=>{
+      console.log(req.params.price)
+      let query = {};
+      if(req.params.price){
+        query = { price: req.query.price };
+      }
+      const sort = {length: -1};
+      const result = await addedToysCollection.find(query).sort(sort).toArray();
+      res.send(result)
+    })
+
     app.get('/myToys/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
