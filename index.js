@@ -33,7 +33,9 @@ async function run() {
     const toysCollection = client.db('toyUtopia').collection('toyData');
     const checkToysCollection = client.db('toyUtopia').collection('check');
     const addedToysCollection = client.db('toyUtopia').collection('sellerAddedToys');
-
+    const indexKeys = {toyName: 1};
+    const indexOptions = {name: 'nameCategory'};
+    const result = await addedToysCollection.createIndex(indexKeys, indexOptions);
 
     // Seller Added Toy Route
     app.post('/sellerAddedToys', async (req, res) => {
@@ -53,9 +55,12 @@ async function run() {
 
     app.get('/allToys', async (req, res) => {
       // console.log(req.query.toyName)
+      const searchToy = req.query.toyName;
       let query = {};
       if (req.query.toyName) {
-        query = { toyName: req.query.toyName }
+        query = {
+          toyName: {$regex: searchToy, $options: "i"},
+        }
       }
 
       const result = await addedToysCollection.find(query).limit(20).toArray();
