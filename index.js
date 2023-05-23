@@ -49,8 +49,8 @@ async function run() {
     const toysCollection = client.db('toyUtopia').collection('toyData');
     const checkToysCollection = client.db('toyUtopia').collection('check');
     const addedToysCollection = client.db('toyUtopia').collection('sellerAddedToys');
-    const indexKeys = {toyName: 1};
-    const indexOptions = {name: 'nameCategory'};
+    const indexKeys = { toyName: 1 };
+    const indexOptions = { name: 'nameCategory' };
     const result = await addedToysCollection.createIndex(indexKeys, indexOptions);
 
     // Seller Added Toy Route
@@ -63,7 +63,7 @@ async function run() {
         return res.status(200).send(result);
       } else {
         return res.status(404).send({
-          message: "can not insert try again leter",
+          message: "can not insert try again later",
           status: false,
         });
       }
@@ -75,7 +75,7 @@ async function run() {
       let query = {};
       if (req.query.toyName) {
         query = {
-          toyName: {$regex: searchToy, $options: "i"},
+          toyName: { $regex: searchToy, $options: "i" },
         }
       }
 
@@ -92,13 +92,19 @@ async function run() {
     })
 
     app.get('/myToys', async (req, res) => {
-      // console.log(req.query.toyName)
+      // console.log(req.query)
       let query = {};
-      if(req.query.sellerEmail){
+      if (req.query.sellerEmail) {
         query = { sellerEmail: req.query.sellerEmail };
       }
 
-      const result = await addedToysCollection.find(query).toArray();
+      let sort = {};
+      if(req.query.order){
+        const order = req.query.order;
+        sort = { price: order === 'ascending' ? 1 : 'descending' ? -1 : 0 }
+      }
+
+      const result = await addedToysCollection.find(query).sort(sort).toArray();
       // console.log(result)
       res.send(result);
     })
@@ -106,16 +112,13 @@ async function run() {
     // sorting
 
     // descending
-    app.get('/myToys', async(req, res)=>{
-      console.log(req.params.price)
-      let query = {};
-      if(req.params.price){
-        query = { price: req.query.price };
-      }
-      const sort = {length: -1};
-      const result = await addedToysCollection.find(query).sort(sort).toArray();
-      res.send(result)
-    })
+    // app.get('/myToys/:order', async (req, res) => {
+      
+    //   console.log(req.params.order);
+      
+    //   const result = await addedToysCollection.find().sort(sort).toArray();
+    //   res.send(result);
+    // })
 
     app.get('/myToys/:id', async (req, res) => {
       const id = req.params.id;
@@ -125,6 +128,12 @@ async function run() {
     })
 
     // category and individual routes
+    app.get('/toys', async (req, res) => {
+      const projection = { toyPicture: 1 };
+      const result = await toysCollection.find().project(projection).limit(12).toArray();
+      res.send(result);
+    })
+
     app.get('/toyDetail/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -163,10 +172,10 @@ async function run() {
     })
 
     // PUT
-    app.put('/myToys/:id', async(req, res)=>{
+    app.put('/myToys/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)};
-      const options = {upsert: true};
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
       const updatedMyToy = req.body
       const myToy = {
         $set: {
@@ -182,9 +191,9 @@ async function run() {
     })
 
     // DELETE
-    app.delete('/myToys/:id', async(req, res)=>{
+    app.delete('/myToys/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await addedToysCollection.deleteOne(query);
       res.send(result);
     })
